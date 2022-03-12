@@ -1,0 +1,15 @@
+﻿CREATE TABLE [dbo].[WeathersData] (
+    [Id]                   INT            IDENTITY (1, 1) NOT NULL,
+    [Date]                 DATETIME       NULL,
+    [Temperature]          REAL           NULL,
+    [RelativeAirHumidity]  REAL           NULL,
+    [DewPoint]             REAL           NULL,
+    [AtmosphericPressure]  INT            NULL,
+    [WindDirection]        NVARCHAR (20)  NULL,
+    [WindSpeed]            INT            NULL,
+    [CloudCover]           INT            NULL,
+    [LowerCloudLimit]      INT            NULL,
+    [HorizontalVisibility] INT            NULL,
+    [WeatherPhenomena]     NVARCHAR (100) NULL,
+    CONSTRAINT [PK_WeatherData] PRIMARY KEY CLUSTERED ([Id] ASC)
+);

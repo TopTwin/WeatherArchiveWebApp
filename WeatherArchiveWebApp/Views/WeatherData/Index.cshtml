@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "MainPage";
+}
+
+<h1>Menu</h1>
+<div class="element">
+    @using (Html.BeginForm("Upload", "WeatherData"))
+        {
+            <button>Загрузить архивы</button>
+        }
+</div>
+<div class="element">
+    @using (Html.BeginForm("ListWeatherData", "WeatherData"))
+{
+    <button>Посмотреть архивы погоды</button>
+}
+</div>
+
+
+<style>
+.element{
+    margin-bottom: 10px
+}
+</style>

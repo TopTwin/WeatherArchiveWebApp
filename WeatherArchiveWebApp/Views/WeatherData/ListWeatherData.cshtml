@@ -1,0 +1,151 @@
+﻿@model List<WeatherData>
+@using System.Globalization
+
+<h1>Архив погоды</h1>
+@if(ViewBag.Month == null)
+{
+    ViewBag.Month = 0;
+}
+@if(ViewBag.Year == null)
+{
+    ViewBag.Year = 0;
+}
+<div class="element">
+    @using (Html.BeginForm("SortWeatherData", "WeatherData", FormMethod.Get)){
+  <select type="number" name="month">
+            @for(int i = 1; i <= 13; i++)
+            {
+                if(i == 13 && i == ViewBag.Month)
+                {
+                    <option selected="selected" value=13>Все месяцы</option>
+                }
+                else if(i == 13)
+                {
+                    <option value=13>Все месяцы</option>   
+                }
+                else if(i == ViewBag.Month)
+                {
+                 <option selected="selected" value=@i>@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
+                }
+                else
+                {
+                 <option value=@i>@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>   
+                }
+            } 
+  </select>
+  <select type="number" name="year">
+      @for (var year = 2000; year <= 2022; year++) {
+                if(ViewBag.Year == year)
+                {
+                 <option selected="selected" value=@year>@year</option>
+                }
+                else
+                {
+                 <option value=@year>@year</option>   
+                }
+      }
+  </select>
+  <div class="element">
+    <button>Показать</button>
+  </div>
+ }
+</div>
+
+<div class="element">
+    @using (Html.BeginForm("ShowAllWeatherData", "WeatherData", FormMethod.Get))
+{
+    <button>Показать все данные</button>
+}
+</div>
+<div class="element">
+    @using (Html.BeginForm("BackToHome", "WeatherData"))
+{
+    <button>Вернуться назад</button>
+}
+</div>
+<div>
+    @if(ViewBag.Number > 1)
+    {
+        using (Html.BeginForm("PreviousPage", "WeatherData"))
+        {
+            <button name="number" value=@ViewBag.Number>Предыдущая страница</button>
+        }
+    }
+</div>
+<div>
+    @if(ViewBag.Number < ViewBag.MaxPage)
+    {
+        @using (Html.BeginForm("NextPage", "WeatherData"))
+        {
+            <button name="number" value=@ViewBag.Number>Следующая страница</button>
+        }
+    }
+</div>
+<div>
+    <label>Номер страницы: @ViewBag.Number</label>
+</div>
+<table align="center">
+    <tr>
+        <td >Дата</td>
+        <td>Время</td>
+        <td>Т</td>
+        <td>Отн. влажность воздуха, %</td>
+        <td>Td</td>
+        <td>Атм. давление, мм. рт. ст.</td>
+        <td>Направление ветра</td>
+        <td>Скорость ветра м/с</td>
+        <td>Облачность %</td>
+        <td>h</td>
+        <td>VV</td>
+        <td>Погодные явления</td>
+    </tr>
+    @if(Model.Count == 0) {
+        <tr>
+            <td colspan=12>Данных нет</td>
+        </tr>
+    }
+    @if(Model.Count != 0)
+    {
+        int lastIndex = 0;
+        if (ViewBag.Number == ViewBag.MaxPage)
+        {
+            lastIndex = (ViewBag.MaxPage - 1) * 50 + Model.Count % 50;
+        }
+        else
+        {
+            lastIndex = ViewBag.Number * 50;
+        }
+        @for(int i = ViewBag.Number * 50 - 50; i < lastIndex; i++)
+        {
+            <tr>
+                <td>@Model[i].Date.ToShortDateString()</td>
+                <td>@Model[i].Date.ToShortTimeString()</td>
+                <td>@Model[i].Temperature</td>
+                <td>@Model[i].RelativeAirHumidity</td>
+                <td>@Model[i].DewPoint</td>
+                <td>@Model[i].AtmosphericPressure</td>
+                <td>@Model[i].WindDirection</td>
+                <td>@Model[i].WindSpeed</td>
+                <td>@Model[i].CloudCover</td>
+                <td>@Model[i].LowerCloudLimit</td>
+                <td>@Model[i].HorizontalVisibility</td>
+                <td>@Model[i].WeatherPhenomena</td>
+            </tr>
+            }
+        }
+        
+</table>
+<style>
+td {
+    border-left: 1px solid #000000;
+    border-right: 1px solid #000000;
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    width: 75px;
+    text-align: center;
+}
+
+.element{
+    margin-bottom: 10px
+}
+</style>

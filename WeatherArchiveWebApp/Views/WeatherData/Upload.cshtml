@@ -1,0 +1,26 @@
+﻿@using WeatherArchiveWebApp.Controllers
+@{
+    ViewData["Title"] = "Upload";
+}
+
+<h1>Upload</h1>
+<div class="element">
+    <form asp-action="UploadFile" enctype="multipart/form-data">   
+
+    <input class="element" type="file" name="files" multiple="multiple" /><br>
+
+    <input class="element" type="submit" value="Загрузить" />
+</form>
+</div>
+<div class="element">
+@using (Html.BeginForm("BackToHome", "WeatherData"))
+{
+    <button>Вернуться назад</button>
+}
+</div>
+
+<style>
+.element{
+    margin-bottom: 10px
+}
+</style>
