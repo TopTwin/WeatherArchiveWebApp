@@ -14,15 +14,15 @@ namespace WeatherArchiveWebApp.Services
 			this.weatherDataRepository = weatherDataRepository;
 		}
 
-		public List<WeatherData> GetWeatherData()
+		public async Task<List<WeatherData>> GetWeatherData()
 		{
-			var listWeatherData = weatherDataRepository.GetWeatherData();
+			var listWeatherData = await weatherDataRepository.GetWeatherData();
 			return listWeatherData;
 		}
 
-		public List<WeatherData> GetSortedWeatherDataByMonthAndYear(int month, int year)
+		public async Task<List<WeatherData>> GetSortedWeatherDataByMonthAndYear(int month, int year)
 		{
-			var sortWeatherData = weatherDataRepository.GetWeatherDataByYear(year);
+			var sortWeatherData = await weatherDataRepository.GetWeatherDataByYear(year);
 			if (sortWeatherData.Count == 0)
 				return sortWeatherData;
 			else
@@ -32,10 +32,16 @@ namespace WeatherArchiveWebApp.Services
 						.ToList();
 		}
 
-		public List<WeatherData> GetWeatherDataByYear(int year)
+		public async Task<List<WeatherData>> GetWeatherDataByYear(int year)
 		{
-			return weatherDataRepository.GetWeatherDataByYear(year);
+			return await weatherDataRepository.GetWeatherDataByYear(year);
 		}
+
+		public async Task<List<WeatherData>> GetWeatherDataByMonth(int month)
+		{
+			return await weatherDataRepository.GetWeatherDataByMonth(month);
+		}
+
 		public async Task<List<WeatherData>> ParseXLSFiles(List<IFormFile> files)
 		{
 			var threads = new List<Thread>();

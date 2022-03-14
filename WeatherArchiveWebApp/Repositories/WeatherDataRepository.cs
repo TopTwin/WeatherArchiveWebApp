@@ -1,4 +1,5 @@
-﻿using WeatherArchiveWebApp.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using WeatherArchiveWebApp.Models;
 
 namespace WeatherArchiveWebApp.Repositories
 {
@@ -11,14 +12,21 @@ namespace WeatherArchiveWebApp.Repositories
 			this.context = context;
 		}
 
-		public List<WeatherData> GetWeatherDataByYear(int year)
+		public async Task<List<WeatherData>> GetWeatherDataByYear(int year)
 		{
-			return context.weathersData
+			return await context.weathersData
 					.Select(w => w)
 					.Where(w => w.Date.Year == year)
-					.ToList();
+					.ToListAsync();
 		}
 
+		public async Task<List<WeatherData>> GetWeatherDataByMonth(int month)
+		{
+			return await context.weathersData
+					.Select(w => w)
+					.Where(w => w.Date.Month == month)
+					.ToListAsync();
+		}
 		public async Task<List<WeatherData>> SetEntitiesAsync(List<WeatherData> weatherDatas)
 		{
 			try
@@ -34,10 +42,9 @@ namespace WeatherArchiveWebApp.Repositories
 			return weatherDatas;
 		}
 
-		public List<WeatherData> GetWeatherData()
+		public async Task<List<WeatherData>> GetWeatherData()
 		{
-			var result = context.weathersData.Select(w => w).ToList();
-			return result;
+			return await context.weathersData.ToListAsync();
 		}
 	}
 }
