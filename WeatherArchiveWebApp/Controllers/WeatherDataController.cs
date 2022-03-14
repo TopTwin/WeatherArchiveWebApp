@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WeatherArchiveWebApp.Models;
 using WeatherArchiveWebApp.Services;
+using X.PagedList;
 
 namespace WeatherArchiveWebApp.Controllers
 {
@@ -12,7 +13,7 @@ namespace WeatherArchiveWebApp.Controllers
 		{
 			this.weatherDataService = weatherDataService;
 		}
-
+		
 		public IActionResult Index()
 		{
 			return View();
@@ -41,88 +42,42 @@ namespace WeatherArchiveWebApp.Controllers
 
 			if(files.Count > 0)
 			{
-				var result = await weatherDataService.ParseXLSFiles(files);
+				await weatherDataService.ParseXLSFiles(files);
 			}
 			return RedirectToAction("Index");
 		}
 
 		public IActionResult ListWeatherData()
 		{
-			return View(new List<WeatherData>());
+			return View(new List<WeatherData>().ToPagedList(1,50));
 		}
 
 		[HttpGet]
-		public IActionResult SortWeatherData(int month, int year)
+		public async Task<IActionResult> ShowWeatherData(int month, int year, int? page)
 		{
-			if(State.Year != year || 
-				State.Month != month || 
-				State.ControllerMethod != State.Method.SortWeatherData)
-				State.NumberPage = 1;
-
-			State.Year = year;
-			State.Month = month;
-			State.ControllerMethod = State.Method.SortWeatherData;
-
-			var sortWeatherData = new List<WeatherData>();
-			if (month == 13)
-				sortWeatherData = weatherDataService
-						.GetWeatherDataByYear(State.Year);
+			List<WeatherData> listWeatherData;
+			if (month != 13 || year != 1)
+				if (month == 13)
+					listWeatherData = await weatherDataService
+							.GetWeatherDataByYear(year);
+				else if (year == 1)
+					listWeatherData = await weatherDataService
+							.GetWeatherDataByMonth(month);
+				else
+					listWeatherData = await weatherDataService
+							.GetSortedWeatherDataByMonthAndYear(month, year);
 			else
-				sortWeatherData = weatherDataService
-						.GetSortedWeatherDataByMonthAndYear(State.Month, State.Year);
+				listWeatherData = await weatherDataService.GetWeatherData();
 
-			ViewBag.Number = State.NumberPage;
-			ViewBag.MaxPage = sortWeatherData.Count / 50 + 1;
-			ViewBag.Month = State.Month;
-			ViewBag.Year = State.Year;
-			return View("ListWeatherData", sortWeatherData);
-		}
-
-		[HttpGet]
-		public IActionResult ShowAllWeatherData()
-		{
-			if(State.ControllerMethod != State.Method.ShowAllWeatherData)
-				State.NumberPage = 1;
-			State.ControllerMethod = State.Method.ShowAllWeatherData;
-
-			var allWeatherData = weatherDataService.GetWeatherData();
-
-			ViewBag.Number = State.NumberPage;
-			ViewBag.MaxPage = allWeatherData.Count / 50 + 1;
-			return View("ListWeatherData", allWeatherData);
+			int pageNumber = page ?? 1;
+			ViewBag.Month = month;
+			ViewBag.Year = year;
+			return View("ListWeatherData", listWeatherData.ToPagedList(pageNumber, 50));
 		}
 
 		public IActionResult BackToHome()
 		{
 			return View("Index");
-		}
-
-		public IActionResult NextPage(int number)
-		{
-			State.NumberPage = number + 1;
-			if (State.ControllerMethod == State.Method.SortWeatherData)
-				return RedirectToAction("SortWeatherData",
-					new
-					{
-						month = State.Month,
-						year = State.Year
-					});
-			else
-				return RedirectToAction("ShowAllWeatherData");
-		}
-
-		public IActionResult PreviousPage(int number)
-		{
-			State.NumberPage = number - 1;
-			if (State.ControllerMethod == State.Method.SortWeatherData)
-				return RedirectToAction("SortWeatherData",
-					new
-					{
-						month = State.Month,
-						year = State.Year
-					});
-			else
-				return RedirectToAction("ShowAllWeatherData");
 		}
 	}
 }

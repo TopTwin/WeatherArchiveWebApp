@@ -1,5 +1,8 @@
-﻿@model List<WeatherData>
+﻿@model X.PagedList.IPagedList<WeatherArchiveWebApp.Models.WeatherData>
+@using X.PagedList.Mvc.Core
 @using System.Globalization
+
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 <h1>Архив погоды</h1>
 @if(ViewBag.Month == null)
@@ -10,20 +13,19 @@
 {
     ViewBag.Year = 0;
 }
+<div>
+     @using (Html.BeginForm("BackToHome", "WeatherData"))
+     {
+         <button>Вернуться назад</button>
+     }
+</div>
 <div class="element">
-    @using (Html.BeginForm("SortWeatherData", "WeatherData", FormMethod.Get)){
+    @using (Html.BeginForm("ShowWeatherData", "WeatherData", FormMethod.Get)){
   <select type="number" name="month">
-            @for(int i = 1; i <= 13; i++)
+      <option selected="selected" value=13>Все месяцы</option>
+            @for(int i = 1; i <= 12; i++)
             {
-                if(i == 13 && i == ViewBag.Month)
-                {
-                    <option selected="selected" value=13>Все месяцы</option>
-                }
-                else if(i == 13)
-                {
-                    <option value=13>Все месяцы</option>   
-                }
-                else if(i == ViewBag.Month)
+                if(i == ViewBag.Month)
                 {
                  <option selected="selected" value=@i>@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
                 }
@@ -34,6 +36,7 @@
             } 
   </select>
   <select type="number" name="year">
+      <option selected="selected" value=1>Все года</option>
       @for (var year = 2000; year <= 2022; year++) {
                 if(ViewBag.Year == year)
                 {
@@ -46,44 +49,32 @@
       }
   </select>
   <div class="element">
-    <button>Показать</button>
+      <button>Показать</button>
   </div>
+
+  @if (Model.Count > 0)
+  {
+      <div>
+          <label>Страница @Model.PageNumber из @Model.PageCount</label>
+      </div>
+      <div>
+          @if (!Model.IsLastPage && Model.Count > 0)
+          {
+              <div class="left-block">
+                  <button name="page" value=@(Model.PageNumber + 1)>Вперед</button>
+              </div>
+          }
+          @if (!Model.IsFirstPage && Model.Count > 0)
+          {
+              <div>
+                  <button name="page" value=@(Model.PageNumber - 1)>Назад</button>
+              </div>
+          }
+      </div>
+  }
  }
 </div>
 
-<div class="element">
-    @using (Html.BeginForm("ShowAllWeatherData", "WeatherData", FormMethod.Get))
-{
-    <button>Показать все данные</button>
-}
-</div>
-<div class="element">
-    @using (Html.BeginForm("BackToHome", "WeatherData"))
-{
-    <button>Вернуться назад</button>
-}
-</div>
-<div>
-    @if(ViewBag.Number > 1)
-    {
-        using (Html.BeginForm("PreviousPage", "WeatherData"))
-        {
-            <button name="number" value=@ViewBag.Number>Предыдущая страница</button>
-        }
-    }
-</div>
-<div>
-    @if(ViewBag.Number < ViewBag.MaxPage)
-    {
-        @using (Html.BeginForm("NextPage", "WeatherData"))
-        {
-            <button name="number" value=@ViewBag.Number>Следующая страница</button>
-        }
-    }
-</div>
-<div>
-    <label>Номер страницы: @ViewBag.Number</label>
-</div>
 <table align="center">
     <tr>
         <td >Дата</td>
@@ -106,33 +97,24 @@
     }
     @if(Model.Count != 0)
     {
-        int lastIndex = 0;
-        if (ViewBag.Number == ViewBag.MaxPage)
-        {
-            lastIndex = (ViewBag.MaxPage - 1) * 50 + Model.Count % 50;
-        }
-        else
-        {
-            lastIndex = ViewBag.Number * 50;
-        }
-        @for(int i = ViewBag.Number * 50 - 50; i < lastIndex; i++)
+        foreach(var item in Model)
         {
             <tr>
-                <td>@Model[i].Date.ToShortDateString()</td>
-                <td>@Model[i].Date.ToShortTimeString()</td>
-                <td>@Model[i].Temperature</td>
-                <td>@Model[i].RelativeAirHumidity</td>
-                <td>@Model[i].DewPoint</td>
-                <td>@Model[i].AtmosphericPressure</td>
-                <td>@Model[i].WindDirection</td>
-                <td>@Model[i].WindSpeed</td>
-                <td>@Model[i].CloudCover</td>
-                <td>@Model[i].LowerCloudLimit</td>
-                <td>@Model[i].HorizontalVisibility</td>
-                <td>@Model[i].WeatherPhenomena</td>
+                <td>@item.Date.ToShortDateString()</td>
+                <td>@item.Date.ToShortTimeString()</td>
+                <td>@item.Temperature</td>
+                <td>@item.RelativeAirHumidity</td>
+                <td>@item.DewPoint</td>
+                <td>@item.AtmosphericPressure</td>
+                <td>@item.WindDirection</td>
+                <td>@item.WindSpeed</td>
+                <td>@item.CloudCover</td>
+                <td>@item.LowerCloudLimit</td>
+                <td>@item.HorizontalVisibility</td>
+                <td>@item.WeatherPhenomena</td>
             </tr>
-            }
         }
+    }
         
 </table>
 <style>
@@ -147,5 +129,12 @@ td {
 
 .element{
     margin-bottom: 10px
+}
+
+.margin{
+    margin-left: 10px
+}
+.left-block{
+    float: left;
 }
 </style>
